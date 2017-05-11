@@ -1,0 +1,12 @@
+bin/
+*.o
+*.d
+*.bin
+*.elf
+.Xil/
+SDK.log
+.metadata
+bsp_pmod/
+bsp_arduino/
+hw_def/
+sdk_import/
