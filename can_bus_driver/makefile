@@ -1,5 +1,5 @@
 # Makefile to build select Microblaze projects.
-
+export PATH := /opt/Xilinx/SDK/2017.1/bin:/opt/Xilinx/SDK/2017.1/gnu/microblaze/lin/bin:$(PATH)
 
 MBBINS = mailbox.bin \
 		arduino_can_bus.bin
