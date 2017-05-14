@@ -3,19 +3,6 @@
 
 #include "arduino.h"
 
-uint8_t WriteBuffer[6];
-uint8_t ReadBuffer[6];
-
-typedef struct
-{
-    uint16_t id;
-	struct {
-		int8_t rtr : 1;
-		uint8_t length : 4;
-	} header;
-	uint8_t data[8];
-} tCAN;
-
 #define SPI_RESET 0xC0
 #define SPI_READ 0x03
 #define SPI_READ_RX 0x90
@@ -274,6 +261,19 @@ typedef struct
 #define	DLC1		1
 #define DLC0		0
 
+
+uint8_t WriteBuffer[6];
+uint8_t ReadBuffer[6];
+
+typedef struct
+{
+    uint16_t id;
+	struct {
+		int8_t rtr : 1;
+		uint8_t length : 4;
+	} header;
+	uint8_t data[8];
+} tCAN;
 
 uint8_t mcp2515_reset(uint8_t speed);
 
