@@ -7,16 +7,16 @@ LD_SRCS += \
 ../src/lscript.ld 
 
 C_SRCS += \
-../src/ST7735.c \
-../src/arduino_lcd18.c 
+../src/mcp2515.c \
+../src/can_bus.c 
 
 OBJS += \
-./src/ST7735.o \
-./src/arduino_lcd18.o 
+./src/mcp2515.o \
+./src/can_bus.o 
 
 C_DEPS += \
-./src/ST7735.d \
-./src/arduino_lcd18.d 
+./src/mcp2515.d \
+./src/can_bus.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes

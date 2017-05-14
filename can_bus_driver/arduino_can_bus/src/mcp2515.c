@@ -51,7 +51,7 @@ uint8_t mcp2515_init(uint8_t speed)
 
     	// test if we could read back the value => is the chip accessible?
 	if (mcp2515_read_register(CNF1) != speed) {
-		return false;
+		return 0;
 	}
 	
 	// deaktivate the RXnBF Pins (High Impedance State)
@@ -67,5 +67,12 @@ uint8_t mcp2515_init(uint8_t speed)
 	// reset device to normal mode
 	mcp2515_write_register(CANCTRL, 0);
 //	SET(LED2_HIGH);
-	return true;
+	return 1;
+}
+
+uint8_t mcp2515_check_free_buffer()
+{
+    if ( (mcp2515_read_status(SPI_READ_STATUS) & 0x54) == 0x54 )
+        return 0;
+    return 1;
 }
