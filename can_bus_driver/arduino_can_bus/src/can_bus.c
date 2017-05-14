@@ -1,8 +1,10 @@
-#include "shield.h"
+#include "can_bus.h"
+
+
 
 int main() {
-    // Configure SPI to idle high, and sample on rising edges
-    arduino_init(1,1,1,1);
+    // Configure SPI to idle low, and sample on rising edges
+    arduino_init(0,0,0,0);
     config_arduino_switch(A_GPIO,A_GPIO,A_GPIO,
                           A_GPIO,A_GPIO,A_GPIO,
                           D_UART,
