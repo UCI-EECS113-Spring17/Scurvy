@@ -261,6 +261,7 @@
 #define	DLC1		1
 #define DLC0		0
 
+#define BIT_IS_SET(dat,pos) ((dat) & (1<<(pos)))
 
 uint8_t WriteBuffer[6];
 uint8_t ReadBuffer[6];
@@ -275,7 +276,7 @@ typedef struct
 	uint8_t data[8];
 } tCAN;
 
-uint8_t mcp2515_reset(uint8_t speed);
+uint8_t mcp2515_init(uint8_t speed);
 
 uint8_t mcp2515_read_register(uint8_t address);
 void mcp2515_write_register(uint8_t address, uint8_t data);
