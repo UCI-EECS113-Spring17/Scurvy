@@ -76,3 +76,38 @@ uint8_t mcp2515_check_free_buffer()
         return 0;
     return 1;
 }
+
+uint8_t mcp2515_get_message(tCAN *message)
+{
+    uint8_t addr;
+    uint8_t t;
+    WriteBuffer[0] = SPI_RX_STATUS;
+    spi_transfer(SHARED_SPI_BASEADDR, 1, ReadBuffer, WriteBuffer);
+    
+    if(BIT_IS_SET(ReadBuffer[0],6)) {
+        addr = SPI_READ_RX;
+    } else if (BIT_IS_SET(ReadBuffer[0],7)) {
+        addr = SPI_READ_RX | 0x04;
+    } else {
+        return 0;
+    }
+
+    WriteBuffer[0] = addr;
+    spi_transfer(SHARED_SPI_BASEADDR, 1, NULL, WriteBuffer);
+
+    
+}
+
+uint8_t mcp2515_send_message(tCAN *message)
+{
+    uint8_t addr;
+    WriteBuffer[0] = SPI_WRITE_TX;
+    spi_transfer(SHARED_SPI_BASEADDR, 1, ReadBuffer, WriteBuffer);
+
+    if(BIT_IS_SET(ReadBuffer[0],6)) {
+        addr = SPI_READ_RX;
+    } else if (BIT_IS_SET(ReadBuffer[0],7)) {
+        addr = SPI_READ_X | 0x0
+    }
+
+}
