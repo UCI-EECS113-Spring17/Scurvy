@@ -60,7 +60,7 @@ int main() {
                           D_GPIO,D_GPIO,D_SS,
                           D_MOSI,D_MISO,D_SPICLK);
     uint8_t command;
-    tCAN *message;
+    tCAN *message = malloc(sizeof(tCAN));
 
     while(1) {
         // Command address is empty (ie no commands)
@@ -73,28 +73,24 @@ int main() {
                 mcp2515_reset(MAILBOX_DATA(0));
                 break;
             case READ:
-                MAILBOX_DATA(0) = mcp2515_read_register(MAILBOX_DATA(0));
+                MAILBOX_DATA(0) = (uint32_t)(0x00FF & mcp2515_read_register(MAILBOX_DATA(0)));
                 break;
             case WRITE:
-                mcp2515_write_register(MAILBOX_DATA(0),MAILBOX_DATA(1));
+                mcp2515_write_register((MAILBOX_DATA(0) & 0xFF),(MAILBOX_DATA(1) & 0xFF));
                 break;
             case BIT_MODIFY:
-                mcp2515_bit_modify(MAILBOX_DATA(0),MAILBOX_DATA(1),MAILBOX_DATA(2));
+                mcp2515_bit_modify((MAILBOX_DATA(0) & 0xFF),(MAILBOX_DATA(1) & 0xFF),(MAILBOX_DATA(2) & 0xFF));
                 break;
             case READ_STATUS:
-                MAILBOX_DATA(0) = mcp2515_read_status(MAILBOX_DATA(0));
+                MAILBOX_DATA(0) = mcp2515_read_status((MAILBOX_DATA(0) & 0xFF ));
                 break;
             case GET_MESSAGE:
-                message = malloc(sizeof(tCAN));
                 write_mailbox_message(message);
                 mcp2515_get_message(message);
-                free(message);
                 break;
             case SEND_MESSAGE:
-                message = malloc(sizeof(tCAN));
                 read_mailbox_message(message);
                 mcp2515_send_message(message);
-                free(message);
                 break;
             case CHECK_MESSAGE:
                 // TODO Check message here

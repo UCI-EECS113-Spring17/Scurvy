@@ -3,6 +3,7 @@
 
 #include "arduino.h"
 #include "mcp2515.h"
+#include <stdlib.h>
 
 void read_from_mailbox(tCAN *message);
 
