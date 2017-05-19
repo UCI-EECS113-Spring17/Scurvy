@@ -261,10 +261,11 @@
 #define	DLC1		1
 #define DLC0		0
 
-#define BIT_IS_SET(dat,pos) ((dat) & (1<<(pos)))
+#define BIT_IS_SET(dat,pos) ( ((dat) & (1<<(pos))) != 0)
+#define MAX_BUFFER_SIZE 20
 
-uint8_t WriteBuffer[6];
-uint8_t ReadBuffer[6];
+uint8_t WriteBuffer[MAX_BUFFER_SIZE];
+uint8_t ReadBuffer[MAX_BUFFER_SIZE];
 
 typedef struct
 {
@@ -276,7 +277,8 @@ typedef struct
 	uint8_t data[8];
 } tCAN;
 
-uint8_t mcp2515_init(uint8_t speed);
+void clear_buffer(uint8_t *buffer);
+uint8_t mcp2515_reset(uint8_t speed);
 
 uint8_t mcp2515_read_register(uint8_t address);
 void mcp2515_write_register(uint8_t address, uint8_t data);
@@ -285,7 +287,6 @@ void mcp2515_bit_modify(uint8_t address, uint8_t mask, uint8_t data);
 uint8_t mcp2515_read_status(uint8_t type);
 
 // Exposed functions
-uint8_t mcp2515_check_message();
 uint8_t mcp2515_check_free_buffer();
 uint8_t mcp2515_get_message(tCAN *message);
 uint8_t mcp2515_send_message(tCAN *message);
