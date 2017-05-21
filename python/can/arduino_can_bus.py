@@ -18,12 +18,15 @@ CMD_GET_MESSAGE = int('0xEF', 16)
 CMD_SEND_MESSAGE = int('0xEE', 16)
 CMD_CHECK_MESSAGE = int('0xED', 16)
 
-class _Message:
-    def __init(self):
+class Message:
+    def __init__(self):
         self.id = 0
         self.rtr = 0
         self.length = 0
-        self.data = list()
+        self.data = [[0,0,0,0],[0,0,0,0]]
+
+    def __str__(self):
+        return "Message< id: {}, rtr: {}, length: {}, data: {}".format(self.id,self.rtr,self.length,self.data)
 
 
 class Can:
@@ -32,25 +35,30 @@ class Can:
     def __init__(self):
         self.iop = request_iop(ARDUINO_IF_ID, CAN_BUS_BIN)
         self.mmio = self.iop.mmio
+        self.mmio.debug=True
         self.iop.start()
 
-    def _write_message(self, message: _Message):
+    def _write_message(self, message: Message):
         word = struct.pack(MESSAGE_PACK[0], message.id, message.rtr, message.length)
         self.mmio.write(iop_const.MAILBOX_OFFSET, word)
-        for i in range(1, 3):
-            word = struct.pack(MESSAGE_PACK[i],
+        for i in range(2):
+            word = struct.pack(MESSAGE_PACK[i+1],
                             message.data[i][0],
                             message.data[i][1],
-                            message.data[i][2]
+                            message.data[i][2],
                             message.data[i][3])
-            self.mmio.write(iop_const.MAILBOX_OFFSET+i, word)
+            self.mmio.write(iop_const.MAILBOX_OFFSET+(i+1)*4, word)
 
     def _read_message(self):
+        message = Message()
         word = self.mmio.read(iop_const.MAILBOX_OFFSET)
+        word = struct.pack('l',word)
         message.id, message.rtr, message.length = struct.unpack(MESSAGE_PACK[0], word)
-        for i in range(1, 3):
-            word = self.mmio.read(iop_const.MAILBOX_OFFSET+1)
-            message.data[i][0], message.data[i][1], message.data[i][2], mesage.data[i][3] = struct.unpack(word)
+        for i in range(2):
+            word = self.mmio.read(iop_const.MAILBOX_OFFSET+(i+1)*4)
+            word = struct.pack('l',word)
+            message.data[i][0], message.data[i][1], message.data[i][2], message.data[i][3] = struct.unpack(MESSAGE_PACK[i+1],word)
+        return message
 
     def _write_command(self, cmd: int):
         self.mmio.write(iop_const.MAILBOX_OFFSET +
@@ -64,7 +72,7 @@ class Can:
 
     def send_message(self):
         self._write_command(CMD_SEND_MESSAGE)
-        
+
 
     def get_message(self):
         self._write_command(CMD_GET_MESSAGE)
