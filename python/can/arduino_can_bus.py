@@ -66,10 +66,11 @@ class Can:
         self.mmio.write(iop_const.MAILBOX_OFFSET +
             iop_const.MAILBOX_PY2IOP_CMD_OFFSET, cmd)
 
+    def _read_command(self):
+        return self.mmio.read(iop_const.MAILBOX_OFFSET+iop_const.MAILBOX_PY2IOP_CMD_OFFSET)
+
     def _wait_for_command(self, cmd: int):
-        while(self.mmio.read(
-                iop_const.MAILBOX_OFFSET+
-                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) != cmd):
+        while(self._read_command() != cmd):
             pass
 
     def send_message(self):
