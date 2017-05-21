@@ -5,7 +5,7 @@ from pynq.iop import iop_const
 from pynq.iop import Arduino_IO
 
 
-MESSAGE_PACK = ("HBB", "BBBB", "BBBB")
+MESSAGE_PACK = (">HBB", ">BBBB", ">BBBB")
 CAN_BUS_BIN = "arduino_can_bus.bin"
 ARDUINO_IF_ID = 3
 
@@ -40,6 +40,7 @@ class Can:
 
     def _write_message(self, message: Message):
         word = struct.pack(MESSAGE_PACK[0], message.id, message.rtr, message.length)
+        word = struct.unpack('>l',word)[0]
         self.mmio.write(iop_const.MAILBOX_OFFSET, word)
         for i in range(2):
             word = struct.pack(MESSAGE_PACK[i+1],
@@ -47,16 +48,17 @@ class Can:
                             message.data[i][1],
                             message.data[i][2],
                             message.data[i][3])
+            word = struct.unpack('>l',word)[0]
             self.mmio.write(iop_const.MAILBOX_OFFSET+(i+1)*4, word)
 
     def _read_message(self):
         message = Message()
         word = self.mmio.read(iop_const.MAILBOX_OFFSET)
-        word = struct.pack('l',word)
+        word = struct.pack('>l',word)
         message.id, message.rtr, message.length = struct.unpack(MESSAGE_PACK[0], word)
         for i in range(2):
             word = self.mmio.read(iop_const.MAILBOX_OFFSET+(i+1)*4)
-            word = struct.pack('l',word)
+            word = struct.pack('>l',word)
             message.data[i][0], message.data[i][1], message.data[i][2], message.data[i][3] = struct.unpack(MESSAGE_PACK[i+1],word)
         return message
 
@@ -67,7 +69,7 @@ class Can:
     def _wait_for_command(self, cmd: int):
         while(self.mmio.read(
                 iop_const.MAILBOX_OFFSET+
-                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) == cmd):
+                iop_const.MAILBOX_PY2IOP_CMD_OFFSET) != cmd):
             pass
 
     def send_message(self):
