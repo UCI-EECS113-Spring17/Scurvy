@@ -9,6 +9,7 @@ MESSAGE_PACK = (">HBB", ">BBBB", ">BBBB")
 CAN_BUS_BIN = "arduino_can_bus.bin"
 ARDUINO_IF_ID = 3
 
+CMD_CLEARED = int('0x0', 16)
 CMD_RESET = int('0xFF', 16)
 CMD_READ = int('0xFE', 16)
 CMD_WRITE = int('0xFD', 16)
@@ -73,8 +74,11 @@ class Can:
         while(self._read_command() != cmd):
             pass
 
-    def send_message(self):
+    def send_message(self, message: Message):
+        self._write_message(message)
         self._write_command(CMD_SEND_MESSAGE)
+        self._wait_for_command(CMD_CLEARED)
+        print("Command Cleared")
 
 
     def get_message(self):

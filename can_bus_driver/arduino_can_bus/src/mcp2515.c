@@ -92,9 +92,7 @@ uint8_t mcp2515_get_message(tCAN *message)
     uint8_t i;
     uint8_t status;
 
-    WriteBuffer[0] = SPI_RX_STATUS;
-    spi_transfer(SHARED_SPI_BASEADDR, 1, ReadBuffer, WriteBuffer);
-    status = ReadBuffer[0];
+    status = mcp2515_read_status(SPI_RX_STATUS);
 
     if(BIT_IS_SET(status,6)) {
         addr = SPI_READ_RX;
@@ -136,14 +134,14 @@ uint8_t mcp2515_send_message(tCAN *message)
     uint8_t t;
     uint8_t status;
 
-    WriteBuffer[0] = SPI_READ_STATUS;
-    spi_transfer(SHARED_SPI_BASEADDR, 1, ReadBuffer, WriteBuffer);
-    status = ReadBuffer[0];
+    status = mcp2515_read_status(SPI_READ_STATUS);
 
-    if(!BIT_IS_SET(status,6)) {
-        addr = SPI_READ_RX;
-    } else if (!BIT_IS_SET(status,7)) {
-        addr = SPI_READ_RX | 0x0;
+    if(!BIT_IS_SET(status, 2)) {
+        addr = 0x00;
+    } else if (!BIT_IS_SET(status,4)) {
+        addr = 0x02;
+    } else if (!BIT_IS_SET(status, 6)) {
+        addr = 0x04;
     } else {
         return 0;
     }
@@ -151,15 +149,17 @@ uint8_t mcp2515_send_message(tCAN *message)
     WriteBuffer[0] = SPI_WRITE_TX | addr;
     WriteBuffer[1] = message->id >> 3;
     WriteBuffer[2] = message->id << 5;
+    WriteBuffer[3] = 0x00;
+    WriteBuffer[4] = 0x00;
 
     uint8_t length = message->header.length & 0x0f;
 
     if (message->header.rtr) {
-        WriteBuffer[3] = (1<<RTR | length);
+        WriteBuffer[5] = (1<<RTR | length);
     } else {
-        WriteBuffer[3] = length;
+        WriteBuffer[5] = length;
         for(t=0; t<length; ++t) {
-            WriteBuffer[t+4] = message->data[t];
+            WriteBuffer[t+6] = message->data[t];
         }
     }
     // GIGO
