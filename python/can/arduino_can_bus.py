@@ -22,6 +22,7 @@ CMD_CHECK_MESSAGE = int('0xED', 16)
 def binary(val: int):
     print('{0:032b}'.format(val))
 
+
 class Message:
     def __init__(self):
         self.id = 0
@@ -47,10 +48,17 @@ class Can:
         self.mmio.debug=True
         self.iop.start()
 
+
+    def _mailbox_write(self, offset, word):
+        self.mmio.write(iop_const.MAILBOX_OFFSET+(offset*4), word)
+
+    def _mailbox_read(self, offset):
+        return self.mmio.read(iop_const.MAILBOX_OFFSET+offset*4)
+
     def _write_message(self, message: Message):
         word = struct.pack(MESSAGE_PACK[0], message.id, message.rtr, message.length)
         word = struct.unpack('>l',word)[0]
-        self.mmio.write(iop_const.MAILBOX_OFFSET, word)
+        self._mailbox_write(0, word)
         binary(word)
         for i in range(2):
             word = struct.pack(MESSAGE_PACK[i+1],
@@ -60,15 +68,15 @@ class Can:
                             message.data[i][3])
             word = struct.unpack('>l',word)[0]
             binary(word)
-            self.mmio.write(iop_const.MAILBOX_OFFSET+(i+1)*4, word)
+            self._mailbox_write(i+1, word)
 
     def _read_message(self):
         message = Message()
-        word = self.mmio.read(iop_const.MAILBOX_OFFSET)
+        word = self._mailbox_read(0)
         word = struct.pack('>l',word)
         message.id, message.rtr, message.length = struct.unpack(MESSAGE_PACK[0], word)
         for i in range(2):
-            word = self.mmio.read(iop_const.MAILBOX_OFFSET+(i+1)*4)
+            word = self._mailbox_read(i+1)
             word = struct.pack('>l',word)
             message.data[i][0], message.data[i][1], message.data[i][2], message.data[i][3] = struct.unpack(MESSAGE_PACK[i+1],word)
         return message
@@ -80,44 +88,49 @@ class Can:
     def _read_command(self):
         return self.mmio.read(iop_const.MAILBOX_OFFSET+iop_const.MAILBOX_PY2IOP_CMD_OFFSET)
 
-    def _wait_for_command(self, cmd: int):
-        while(self._read_command() != cmd):
+    def _wait_for_command(self):
+        while(self._read_command() != 0):
             pass
 
     def send_message(self, message: Message):
         self._write_message(message)
         self._write_command(CMD_SEND_MESSAGE)
-        self._wait_for_command(CMD_CLEARED)
-        print("Command Cleared")
+        self._wait_for_command()
 
     def get_message(self):
         self._write_command(CMD_GET_MESSAGE)
-        self._wait_for_command(CMD_GET_MESSAGE)
+        self._wait_for_command()
         self._read_message()
     
-    def bit_modify(self):
+    def bit_modify(self, address, mask, data):
         self._write_command(CMD_BIT_MODIFY)
-        self._wait_for_command(CMD_BIT_MODIFY)
-        raise NotImplementedError
+        self._mailbox_write(0, address)
+        self._mailbox_write(1, mask)
+        self._mailbox_write(2, data)
+        self._wait_for_command()
 
-    def reset(self):
+    def reset(self, speed: int):
         self._write_command(CMD_RESET)
-        raise NotImplementedError
+        self._mailbox_write(0, speed)
+        self._wait_for_command()
     
-    def read_status(self):
+    def read_status(self, data_type: int):
         self._write_command(CMD_READ_STATUS)
-        self._wait_for_command(CMD_READ_STATUS)
-        raise NotImplementedError
+        self._mailbox_write(0, data_type)
+        self._wait_for_command()
+        return self._mailbox_read(0)
+        
 
-    def read(self):
+    def read(self, speed: int):
         self._write_command(CMD_READ)
-        self._wait_for_command(CMD_READ)
+        self._mailbox_write(0, speed)
+        self._wait_for_command()
     
     def write(self):
         self._write_command(CMD_WRITE)
-        raise NotImplementedError
+        self._mailbox_write(0, data)
+        self._wait_for_command()
+        return self._mailbox_read(0)
     
-    def check_message(self):
-        self._write_command(CMD_CHECK_MESSAGE)
-        self._wait_for_command(CMD_CHECK_MESSAGE)
+    def check_message(self, data: int):
         raise NotImplementedError
