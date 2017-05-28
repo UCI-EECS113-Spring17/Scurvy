@@ -19,6 +19,9 @@ CMD_GET_MESSAGE = int('0xEF', 16)
 CMD_SEND_MESSAGE = int('0xEE', 16)
 CMD_CHECK_MESSAGE = int('0xED', 16)
 
+def binary(val: int):
+    print('{0:032b}'.format(val))
+
 class Message:
     def __init__(self):
         self.id = 0
@@ -29,6 +32,11 @@ class Message:
     def __str__(self):
         return "Message< id: {}, rtr: {}, length: {}, data: {}".format(self.id,self.rtr,self.length,self.data)
 
+    def __eq__(self, value):
+        return str(self) == str(value) 
+
+    def __ne__(self, value):
+        return not self.__eq__(value)
 
 class Can:
     '''Object representing pure IOP communication.'''
@@ -43,6 +51,7 @@ class Can:
         word = struct.pack(MESSAGE_PACK[0], message.id, message.rtr, message.length)
         word = struct.unpack('>l',word)[0]
         self.mmio.write(iop_const.MAILBOX_OFFSET, word)
+        binary(word)
         for i in range(2):
             word = struct.pack(MESSAGE_PACK[i+1],
                             message.data[i][0],
@@ -50,6 +59,7 @@ class Can:
                             message.data[i][2],
                             message.data[i][3])
             word = struct.unpack('>l',word)[0]
+            binary(word)
             self.mmio.write(iop_const.MAILBOX_OFFSET+(i+1)*4, word)
 
     def _read_message(self):
@@ -79,7 +89,6 @@ class Can:
         self._write_command(CMD_SEND_MESSAGE)
         self._wait_for_command(CMD_CLEARED)
         print("Command Cleared")
-
 
     def get_message(self):
         self._write_command(CMD_GET_MESSAGE)
