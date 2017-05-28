@@ -1,22 +1,10 @@
 #include "can_bus.h"
 
-// Mailbox commands
-#define RESET       0xFF
-#define READ        0xFE
-#define WRITE       0xFD
-#define BIT_MODIFY  0xFC
-#define READ_STATUS 0xFB
-#define GET_MESSAGE 0xEF
-#define SEND_MESSAGE 0xEE
-#define CHECK_MESSAGE 0xED
-
-
 void read_mailbox_message(tCAN *message)
 {
     uint32_t word;
     word = MAILBOX_DATA(0);
-    message->id = (word >> 24) & 0xFF;
-    message->id |= (word >> 16) & 0xFF;
+    message->id = (word >> 16) & 0x07FF;
     message->header.rtr = (word >> 8) & 0xFF;
     message->header.length = word;
 
