@@ -43,6 +43,7 @@ class Can:
     '''Object representing pure IOP communication.'''
 
     def __init__(self):
+        self._can_int = Arduino_IO(ARDUINO_IF_ID, 2, 'in')
         self.iop = request_iop(ARDUINO_IF_ID, CAN_BUS_BIN)
         self.mmio = self.iop.mmio
         self.mmio.debug=True
@@ -100,7 +101,7 @@ class Can:
     def get_message(self):
         self._write_command(CMD_GET_MESSAGE)
         self._wait_for_command()
-        self._read_message()
+        return self._read_message()
     
     def bit_modify(self, address, mask, data):
         self._write_command(CMD_BIT_MODIFY)
@@ -126,11 +127,11 @@ class Can:
         self._mailbox_write(0, speed)
         self._wait_for_command()
     
-    def write(self):
+    def write(self, data: int):
         self._write_command(CMD_WRITE)
         self._mailbox_write(0, data)
         self._wait_for_command()
         return self._mailbox_read(0)
     
-    def check_message(self, data: int):
-        raise NotImplementedError
+    def check_message(self) -> bool:
+        return self._can_int.read() == 0
