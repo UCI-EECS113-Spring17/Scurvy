@@ -104,32 +104,32 @@ class Can:
         return self._read_message()
     
     def bit_modify(self, address, mask, data):
-        self._write_command(CMD_BIT_MODIFY)
         self._mailbox_write(0, address)
         self._mailbox_write(1, mask)
         self._mailbox_write(2, data)
+        self._write_command(CMD_BIT_MODIFY)
         self._wait_for_command()
 
     def reset(self, speed: int):
-        self._write_command(CMD_RESET)
         self._mailbox_write(0, speed)
+        self._write_command(CMD_RESET)
         self._wait_for_command()
     
     def read_status(self, data_type: int):
-        self._write_command(CMD_READ_STATUS)
         self._mailbox_write(0, data_type)
+        self._write_command(CMD_READ_STATUS)
         self._wait_for_command()
         return self._mailbox_read(0)
         
 
     def read(self, speed: int):
-        self._write_command(CMD_READ)
         self._mailbox_write(0, speed)
+        self._write_command(CMD_READ)
         self._wait_for_command()
     
     def write(self, data: int):
-        self._write_command(CMD_WRITE)
         self._mailbox_write(0, data)
+        self._write_command(CMD_WRITE)
         self._wait_for_command()
         return self._mailbox_read(0)
     
