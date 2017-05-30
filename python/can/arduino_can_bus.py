@@ -62,7 +62,6 @@ class Can:
         word = struct.pack(MESSAGE_PACK[0], message.id, message.rtr, message.length)
         word = struct.unpack('>l',word)[0]
         self._mailbox_write(0, word)
-        binary(word)
         for i in range(2):
             word = struct.pack(MESSAGE_PACK[i+1],
                             message.data[i][0],
@@ -70,7 +69,6 @@ class Can:
                             message.data[i][2],
                             message.data[i][3])
             word = struct.unpack('>l',word)[0]
-            binary(word)
             self._mailbox_write(i+1, word)
 
     def _read_message(self):

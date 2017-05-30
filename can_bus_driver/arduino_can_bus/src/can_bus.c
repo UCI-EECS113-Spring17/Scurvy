@@ -23,8 +23,8 @@ void write_mailbox_message(tCAN *message)
     // Assume big-endian right hurr
     word[3] = (message->id>>8) & 0xFF; 
     word[2] = (message->id) & 0xFF;
-    word[1] = message->header.rtr;
-    word[0] = message->header.length; 
+    word[1] = message->header.rtr & 0x01;    //  Bit width: 1 
+    word[0] = message->header.length & 0x0F; //  Bit width: 4
 
     MAILBOX_DATA(0) = *(uint32_t *)word; 
 
