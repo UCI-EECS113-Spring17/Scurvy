@@ -5,7 +5,7 @@ MAF_SENSOR = int('0x10', 16)
 O2_VOLTAGE = int('0x14', 16)
 THROTTLE = int('0x11', 16)
 
-PID_REQUEST = int('0x73F', 16)
+PID_REQUEST = int('0x7DF', 16)
 PID_REPLY = int('0x7E8', 16)
 
 CANCTRL = int('0x0F', 16)

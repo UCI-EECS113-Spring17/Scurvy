@@ -10,14 +10,17 @@ CAN_BUS_BIN = "arduino_can_bus.bin"
 ARDUINO_IF_ID = 3
 
 CMD_CLEARED = int('0x0', 16)
-CMD_RESET = int('0xFF', 16)
-CMD_READ = int('0xFE', 16)
-CMD_WRITE = int('0xFD', 16)
-CMD_BIT_MODIFY = int('0xFC', 16)
-CMD_READ_STATUS = int('0xFB', 16)
-CMD_GET_MESSAGE = int('0xEF', 16)
-CMD_SEND_MESSAGE = int('0xEE', 16)
-CMD_CHECK_MESSAGE = int('0xED', 16)
+CMD_RESET = int('0x01', 16)
+CMD_READ = int('0x02', 16)
+CMD_WRITE = int('0x03', 16)
+CMD_BIT_MODIFY = int('0x04', 16)
+CMD_READ_STATUS = int('0x05', 16)
+CMD_GET_MESSAGE = int('0x06', 16)
+CMD_SEND_MESSAGE = int('0x07', 16)
+CMD_CHECK_MESSAGE = int('0x08', 16)
+
+CMD_TEST_MESSAGE_WRITE = int('0xFF', 16)
+CMD_TEST_MESSAGE_READ = int('0xFE', 16)
 
 def binary(val: int):
     print('{0:032b}'.format(val))
@@ -43,7 +46,6 @@ class Can:
     '''Object representing pure IOP communication.'''
 
     def __init__(self):
-        self._can_int = Arduino_IO(ARDUINO_IF_ID, 2, 'in')
         self.iop = request_iop(ARDUINO_IF_ID, CAN_BUS_BIN)
         self.mmio = self.iop.mmio
         self.mmio.debug=True
@@ -134,4 +136,4 @@ class Can:
         return self._mailbox_read(0)
     
     def check_message(self) -> bool:
-        return self._can_int.read() == 0
+        return True

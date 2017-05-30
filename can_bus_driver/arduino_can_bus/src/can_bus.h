@@ -6,14 +6,19 @@
 #include <stdlib.h>
 
 // Mailbox commands
-#define RESET       0xFF
-#define READ        0xFE
-#define WRITE       0xFD
-#define BIT_MODIFY  0xFC
-#define READ_STATUS 0xFB
-#define GET_MESSAGE 0xEF
-#define SEND_MESSAGE 0xEE
-#define CHECK_MESSAGE 0xED
+#define RESET       0x01
+#define READ        0x02
+#define WRITE       0x03
+#define BIT_MODIFY  0x04
+#define READ_STATUS 0x05
+#define GET_MESSAGE 0x06
+#define SEND_MESSAGE 0x07
+#define CHECK_MESSAGE 0x08
+
+// Test commands
+#define TEST_MESSAGE_WRITE 0xFF
+#define TEST_MESSAGE_READ 0xFE
+
 
 void read_from_mailbox(tCAN *message);
 

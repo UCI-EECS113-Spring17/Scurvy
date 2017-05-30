@@ -80,9 +80,14 @@ int main() {
                 read_mailbox_message(message);
                 mcp2515_send_message(message);
                 break;
-            case CHECK_MESSAGE:
-                // TODO Check message here
-                // XGpio_WriteData();
+            
+            // Test Commands
+            case TEST_MESSAGE_WRITE:
+                read_mailbox_message(message);
+                break;
+            case TEST_MESSAGE_READ:
+                write_mailbox_message(message);
+                break;
             default:
                 break;
         }
