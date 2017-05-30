@@ -1,9 +1,8 @@
 # Makefile to build select Microblaze projects.
-XILINX_SDK_PATH = /opt/Xilinx/SDK/2016.4
+XILINX_SDK_PATH = /opt/Xilinx/SDK/2017.1
 export PATH := ${XILINX_SDK_PATH}/bin:${XILINX_SDK_PATH}/gnu/microblaze/lin/bin:$(PATH)
 
-MBBINS = mailbox.bin \
-		arduino_can_bus.bin
+MBBINS = arduino_can_bus.bin
 
 all: iop_bins
 	@echo "Completed Microblaze Projects' Builds"
