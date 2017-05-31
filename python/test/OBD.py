@@ -3,8 +3,9 @@ import constants
 
 class OBD:
 
-    def __init__(self):
+    def __init__(self, speed: int):
         self.can = Can()
+        self.can.reset(speed)
 
     def ecu_req(self, pid):
         message = Message()
@@ -17,10 +18,11 @@ class OBD:
         ]
 
         self.can.bit_modify(constants.CANCTRL, int('0b11100000', 2), 0)
-
+        print(message)
         self.can.send_message(message)
 
         message = self.can.get_message()
+        print(message)
         if message.data[0][2] == constants.ENGINE_RPM:
             print("Engine RPM: ")
             engine_data = ((message.data[0][3]*256) + message.data[1][0])/4

@@ -48,7 +48,7 @@ class Can:
     def __init__(self):
         self.iop = request_iop(ARDUINO_IF_ID, CAN_BUS_BIN)
         self.mmio = self.iop.mmio
-        self.mmio.debug=True
+        self.mmio.debug=False
         self.iop.start()
 
 
