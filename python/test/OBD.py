@@ -1,11 +1,15 @@
+import time
+import logging
 from pynq.iop.arduino_can_bus import Can,Message
 import constants
 
 class OBD:
 
-    def __init__(self, speed: int):
+    def __init__(self, speed: int, logger = True):
         self.can = Can()
         self.can.reset(speed)
+        if logger:
+            logging.basicConfig(filename='obd.log',level=logging.INFO)
 
     def ecu_req(self, pid):
         message = Message()
@@ -18,11 +22,11 @@ class OBD:
         ]
 
         self.can.bit_modify(constants.CANCTRL, int('0b11100000', 2), 0)
-        print(message)
+        logging.info("Sending message: ")
+        logging.info(message)
         self.can.send_message(message)
-
+        time.sleep(0.1)
         message = self.can.get_message()
-        print(message)
         if message.data[0][2] == constants.ENGINE_RPM:
             print("Engine RPM: ")
             engine_data = ((message.data[0][3]*256) + message.data[1][0])/4
@@ -40,4 +44,6 @@ class OBD:
             engine_data = (message.data[0][3]*100)/255;
         else:
             engine_data = "Invalid PID detected"
+        logging.info("Received message: ")
+        logging.info(message)            
         print(engine_data)

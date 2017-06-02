@@ -1,4 +1,6 @@
 import struct
+import logging
+import binascii
 from pynq import MMIO
 from pynq.iop import request_iop
 from pynq.iop import iop_const
@@ -34,7 +36,7 @@ class Message:
         self.data = [[0,0,0,0],[0,0,0,0]]
 
     def __str__(self):
-        return "Message< id: {}, rtr: {}, length: {}, data: {}".format(self.id,self.rtr,self.length,self.data)
+        return "Message< id: 0x{:04X}, rtr: {}, length: {}, data: {}".format(self.id,self.rtr,self.length,self.data)
 
     def __eq__(self, value):
         return str(self) == str(value) 
@@ -51,7 +53,6 @@ class Can:
         self.mmio.debug=False
         self.iop.start()
 
-
     def _mailbox_write(self, offset, word):
         self.mmio.write(iop_const.MAILBOX_OFFSET+(offset*4), word)
 
@@ -59,7 +60,9 @@ class Can:
         return self.mmio.read(iop_const.MAILBOX_OFFSET+offset*4)
 
     def _write_message(self, message: Message):
+        logging.debug("Writing Message: ")
         word = struct.pack(MESSAGE_PACK[0], message.id, message.rtr, message.length)
+        logging.debug(binascii.hexlify(word))
         word = struct.unpack('>l',word)[0]
         self._mailbox_write(0, word)
         for i in range(2):
@@ -68,17 +71,21 @@ class Can:
                             message.data[i][1],
                             message.data[i][2],
                             message.data[i][3])
+            logging.debug(binascii.hexlify(word))
             word = struct.unpack('>l',word)[0]
             self._mailbox_write(i+1, word)
 
     def _read_message(self):
+        logging.debug("Reading Message: ")
         message = Message()
         word = self._mailbox_read(0)
         word = struct.pack('>l',word)
+        logging.debug(binascii.hexlify(word))
         message.id, message.rtr, message.length = struct.unpack(MESSAGE_PACK[0], word)
         for i in range(2):
             word = self._mailbox_read(i+1)
             word = struct.pack('>l',word)
+            logging.debug(binascii.hexlify(word))
             message.data[i][0], message.data[i][1], message.data[i][2], message.data[i][3] = struct.unpack(MESSAGE_PACK[i+1],word)
         return message
 

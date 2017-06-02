@@ -113,8 +113,8 @@ uint8_t mcp2515_get_message(tCAN *message)
     message->header.rtr = (BIT_IS_SET(status,3)) ? 1 : 0;
 
     // Read in buffer at 4th command
-    for(i=6; i < message->header.length+6; ++i)
-        message->data[i] = ReadBuffer[i];
+    for(i=0; i < message->header.length; ++i)
+        message->data[i] = ReadBuffer[i+6];
 
     if(BIT_IS_SET(status, 6)) {
         mcp2515_bit_modify(CANINTF, (1<<RX0IF), 0);
