@@ -15,6 +15,9 @@
 #define SEND_MESSAGE 0x07
 #define CHECK_MESSAGE 0x08
 
+#define LED_7 0x07
+#define LED_8 0x08
+
 // Test commands
 #define TEST_MESSAGE_WRITE 0xFF
 #define TEST_MESSAGE_READ 0xFE

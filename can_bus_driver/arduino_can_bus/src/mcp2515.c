@@ -40,7 +40,7 @@ uint8_t mcp2515_reset(uint8_t speed)
     WriteBuffer[0] = SPI_RESET;
     spi_transfer(SHARED_SPI_BASEADDR, 1, NULL, WriteBuffer);
 
-    delay_us(10);
+    delay_us(30);
     WriteBuffer[0] = SPI_WRITE;
     WriteBuffer[1] = CNF3;
     WriteBuffer[2] = (1<<PHSEG21);
@@ -163,9 +163,9 @@ uint8_t mcp2515_send_message(tCAN *message)
         }
     }
     // GIGO
-    spi_transfer(SHARED_SPI_BASEADDR, 6+length, ReadBuffer, WriteBuffer);
+    spi_transfer(SHARED_SPI_BASEADDR, 6+length, NULL, WriteBuffer);
 
-    delay_us(1);
+    delay_us(2);
 
     addr = (addr == 0) ? 1 : addr;
     WriteBuffer[0] = (SPI_RTS | addr);

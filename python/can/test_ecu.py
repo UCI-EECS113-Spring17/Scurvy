@@ -11,9 +11,10 @@ CANSPEED_250 = 3
 CANSPEED_500 = 1
 
 obd = OBD.OBD(CANSPEED_500, logger=False)
+time.sleep(2)
 switch_1 = Switch(0)
 switch_2 = Switch(1)
-logging.basicConfig(filename="ecu_log.log", level=logging.DEBUG)
+logging.basicConfig(level=logging.DEBUG)
 
 while True:
     inp = (switch_1.read() << 1) | switch_2.read()

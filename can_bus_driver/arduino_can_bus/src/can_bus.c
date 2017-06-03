@@ -37,19 +37,27 @@ void write_mailbox_message(tCAN *message)
     }
 }
 
+uint32_t check_message(XGpio *gpio)
+{
+    return (XGpio_DiscreteRead(gpio, 1) >> 2) & 0x01;
+}
+
 int main() {
     // Configure SPI to idle low, and sample on rising edges
     arduino_init(0,0,0,0);
     config_arduino_switch(A_GPIO,A_GPIO,A_GPIO,
                           A_GPIO,A_GPIO,A_GPIO,
                           D_UART,
-                          MAILBOX_DATA(5),D_GPIO,D_GPIO,
+                          D_GPIO,D_GPIO,D_GPIO,
                           D_GPIO,D_GPIO,D_GPIO,
                           D_GPIO,D_GPIO,D_SS,
                           D_MOSI,D_MISO,D_SPICLK);
     uint8_t command;
     tCAN *message = malloc(sizeof(tCAN));
-
+    //  Configure interrupt pin
+    XGpio interrupt;
+    XGpio_Initialize(&interrupt, XPAR_GPIO_0_DEVICE_ID);
+    XGpio_SetDataDirection(&interrupt, 1, 0xFF);
 
     while(1) {
         // Command address is empty (ie no commands)
@@ -80,6 +88,9 @@ int main() {
             case SEND_MESSAGE:
                 read_mailbox_message(message);
                 mcp2515_send_message(message);
+                break;
+            case CHECK_MESSAGE:
+                MAILBOX_DATA(0) = check_message(&interrupt);
                 break;
             // Test Commands
             case TEST_MESSAGE_WRITE:

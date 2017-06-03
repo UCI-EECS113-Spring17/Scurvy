@@ -26,22 +26,21 @@ class OBD:
         self.can.bit_modify(constants.CANCTRL, int('0b11100000', 2), 0)
         logging.debug("Sending message: %s", message)
         self.can.send_message(message)
-        time.sleep(0.1)
         if self.can.check_message():
             message = self.can.get_message()
             if message.data[0][2] == constants.ENGINE_RPM:
-                logging.info("Engine RPM: %s", engine_data)
                 engine_data = ((message.data[0][3]*256) + message.data[1][0])/4
+                logging.info("Engine RPM: %s", engine_data)
             elif message.data[0][2] == constants.ENGINE_COOLANT_TEMP:
-                logging.info("Engine Coolant Temp (C): %s", engine_data)
                 engine_data = message.data[0][3] - 40
+                logging.info("Engine Coolant Temp (C): %s", engine_data)
             elif message.data[0][2] == constants.VEHICLE_SPEED:
-                logging.info("Vehicle Speed: %s", engine_data)
                 engine_data = message.data[0][3]
+                logging.info("Vehicle Speed: %s", engine_data)
             elif message.data[0][2] == constants.MAF_SENSOR:
-                logging.info("MAF Status: %s", engine_data)
                 engine_data = ((message.data[0][3]*256) + message.data[1][0])/100
+                logging.info("MAF Status: %s", engine_data)
             elif message.data[0][2] == constants.THROTTLE:
-                logging.info("Throttle: %s", engine_data)
                 engine_data = (message.data[0][3]*100)/255;
+                logging.info("Throttle: %s", engine_data)
             logging.debug("Received message: %s", message)
