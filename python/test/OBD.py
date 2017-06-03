@@ -29,21 +29,27 @@ class OBD:
         message = self.can.get_message()
         if message.data[0][2] == constants.ENGINE_RPM:
             print("Engine RPM: ")
+            logging.info("Engine RPM: ")
             engine_data = ((message.data[0][3]*256) + message.data[1][0])/4
         elif message.data[0][2] == constants.ENGINE_COOLANT_TEMP:
             print("Engine Coolant Temp (C): ")
+            logging.info("Engine Coolant Temp (C): ")
             engine_data = message.data[0][3] - 40
         elif message.data[0][2] == constants.VEHICLE_SPEED:
             print("Vehicle Speed: ")
+            logging.info("Vehicle Speed: ")
             engine_data = message.data[0][3]
         elif message.data[0][2] == constants.MAF_SENSOR:
             print("MAF Status: " )
+            logging.info("MAF Status: ")
             engine_data = ((message.data[0][3]*256) + message.data[1][0])/100
         elif message.data[0][2] == constants.THROTTLE:
             print("THROTTLE: ")
+            logging.info("Throttle: ")
             engine_data = (message.data[0][3]*100)/255;
         else:
             engine_data = "Invalid PID detected"
+        logging.info(engine_data)
         logging.info("Received message: ")
         logging.info(message)            
         print(engine_data)

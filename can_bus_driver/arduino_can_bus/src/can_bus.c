@@ -82,8 +82,8 @@ int main() {
                 MAILBOX_DATA(0) = mcp2515_read_status((MAILBOX_DATA(0) & 0xFF ));
                 break;
             case GET_MESSAGE:
-                write_mailbox_message(message);
                 mcp2515_get_message(message);
+                write_mailbox_message(message);
                 break;
             case SEND_MESSAGE:
                 read_mailbox_message(message);

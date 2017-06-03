@@ -63,7 +63,7 @@ class Can:
         logging.debug("Writing Message: ")
         word = struct.pack(MESSAGE_PACK[0], message.id, message.rtr, message.length)
         logging.debug(binascii.hexlify(word))
-        word = struct.unpack('>l',word)[0]
+        word = struct.unpack('>L',word)[0]
         self._mailbox_write(0, word)
         for i in range(2):
             word = struct.pack(MESSAGE_PACK[i+1],
@@ -72,19 +72,19 @@ class Can:
                             message.data[i][2],
                             message.data[i][3])
             logging.debug(binascii.hexlify(word))
-            word = struct.unpack('>l',word)[0]
+            word = struct.unpack('>L',word)[0]
             self._mailbox_write(i+1, word)
 
     def _read_message(self):
         logging.debug("Reading Message: ")
         message = Message()
         word = self._mailbox_read(0)
-        word = struct.pack('>l',word)
+        word = struct.pack('>L',word)
         logging.debug(binascii.hexlify(word))
         message.id, message.rtr, message.length = struct.unpack(MESSAGE_PACK[0], word)
         for i in range(2):
             word = self._mailbox_read(i+1)
-            word = struct.pack('>l',word)
+            word = struct.pack('>L',word)
             logging.debug(binascii.hexlify(word))
             message.data[i][0], message.data[i][1], message.data[i][2], message.data[i][3] = struct.unpack(MESSAGE_PACK[i+1],word)
         return message
@@ -139,6 +139,8 @@ class Can:
         self._write_command(CMD_WRITE)
         self._wait_for_command()
         return self._mailbox_read(0)
-    
-    def check_message(self) -> bool:
-        return True
+
+    def check_message(self):
+        self._write_command(CMD_CHECK_MESSAGE)
+        self._wait_for_command()
+        return self._mailbox_read(0)

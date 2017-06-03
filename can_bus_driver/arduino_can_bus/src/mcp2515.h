@@ -2,6 +2,7 @@
 #define __MCP2515_H
 
 #include "arduino.h"
+#include "xgpio.h"
 
 #define SPI_RESET 0xC0
 #define SPI_READ 0x03
