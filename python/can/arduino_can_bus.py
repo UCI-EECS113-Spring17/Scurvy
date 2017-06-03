@@ -141,6 +141,4 @@ class Can:
         return self._mailbox_read(0)
 
     def check_message(self):
-        self._write_command(CMD_CHECK_MESSAGE)
-        self._wait_for_command()
-        return self._mailbox_read(0)
+        return False if self._mailbox_read(5) else True

@@ -104,7 +104,7 @@ uint8_t mcp2515_get_message(tCAN *message)
 
     WriteBuffer[0] = addr;
     // GIGO
-    spi_transfer(SHARED_SPI_BASEADDR, 12, ReadBuffer, WriteBuffer);
+    spi_transfer(SHARED_SPI_BASEADDR, 14, ReadBuffer, WriteBuffer);
 
     message->id = (uint16_t) ReadBuffer[1] << 3;
     message->id |= ReadBuffer[2] >> 5;
@@ -163,7 +163,7 @@ uint8_t mcp2515_send_message(tCAN *message)
         }
     }
     // GIGO
-    spi_transfer(SHARED_SPI_BASEADDR, 5+length, ReadBuffer, WriteBuffer);
+    spi_transfer(SHARED_SPI_BASEADDR, 6+length, ReadBuffer, WriteBuffer);
 
     delay_us(1);
 
