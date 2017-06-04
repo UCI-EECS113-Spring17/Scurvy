@@ -4,26 +4,28 @@ import pytest
 import time
 import logging
 
-from pynq.board import Switch
 
 CANSPEED_125 = 7
 CANSPEED_250 = 3
 CANSPEED_500 = 1
 
+logging.basicConfig(filename="ecu_quick.log", level=logging.INFO)
 obd = OBD.OBD(CANSPEED_500, logger=False)
+counter = 0
 time.sleep(2)
-switch_1 = Switch(0)
-switch_2 = Switch(1)
-logging.basicConfig(level=logging.DEBUG)
 
 while True:
-    inp = (switch_1.read() << 1) | switch_2.read()
-    if inp == 3:
+    if counter % 10 == 0:
         obd.ecu_req(constants.VEHICLE_SPEED)
-    elif inp == 2:
+    elif counter % 10 == 1:
         obd.ecu_req(constants.THROTTLE)
-    elif inp == 1:
+    elif counter % 10 == 2:
         obd.ecu_req(constants.ENGINE_RPM)
-    else:
+    elif counter % 10 == 3:
+        obd.ecu_req(constants.ENGINE_COOLANT_TEMP)
+    elif counter % 10 == 4:
         obd.ecu_req(constants.O2_VOLTAGE)
-    time.sleep(1)
+    elif counter % 10 == 5:
+        obd.ecu_req(constants.MAF_SENSOR)
+
+    counter += 1
