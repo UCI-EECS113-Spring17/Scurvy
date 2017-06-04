@@ -1,6 +1,7 @@
 import struct
 import logging
 import binascii
+import json
 from pynq import MMIO
 from pynq.iop import request_iop
 from pynq.iop import iop_const
@@ -36,7 +37,7 @@ class Message:
         self.data = [[0,0,0,0],[0,0,0,0]]
 
     def __str__(self):
-        return "Message< id: 0x{:04X}, rtr: {}, length: {}, data: {}".format(self.id,self.rtr,self.length,self.data)
+        return json.dumps({'id':self.id, 'rtr':self.rtr, 'length':self.length, 'data':self.data})
 
     def __eq__(self, value):
         return str(self) == str(value) 
