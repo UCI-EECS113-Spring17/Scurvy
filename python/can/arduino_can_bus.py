@@ -2,6 +2,7 @@ import struct
 import logging
 import binascii
 import json
+
 from pynq import MMIO
 from pynq.iop import request_iop
 from pynq.iop import iop_const
@@ -44,6 +45,7 @@ class Message:
 
     def __ne__(self, value):
         return not self.__eq__(value)
+
 
 class Can:
     '''Object representing pure IOP communication.'''
@@ -128,7 +130,6 @@ class Can:
         self._write_command(CMD_READ_STATUS)
         self._wait_for_command()
         return self._mailbox_read(0)
-        
 
     def read(self, speed: int):
         self._mailbox_write(0, speed)
