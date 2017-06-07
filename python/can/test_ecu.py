@@ -1,7 +1,7 @@
 import constants
 import OBD
 import time
-import os
+import shutil
 import sys
 import logging
 
@@ -14,14 +14,15 @@ CANSPEED_125 = 7
 CANSPEED_250 = 3
 CANSPEED_500 = 1
 
-SERVER_URL = 'http://104.131.157.117:8080/logs'
+SERVER_URL = 'https://scurvy-can-bus.herokuapp.com/logs'
 # SERVER_URL = 'http://192.168.1.82:8080/logs'
 
 STOP_COUNT = 20
+LOG_FILE = "ecu.log"
 logger = logging.getLogger(__name__)
 
 # File logging
-fileHandler = logging.FileHandler("ecu_"+str(time.time())+".log")
+fileHandler = logging.FileHandler(LOG_FILE)
 fileHandler.setLevel(logging.INFO)
 formatter = logging.Formatter('')
 fileHandler.setFormatter(formatter)
@@ -58,7 +59,6 @@ def worker(counter: int):
     elif counter % 10 == 5:
         result = obd.ecu_req(constants.ENGINE_RPM)
 
-    time.sleep(0.5)
     return result
 
 def serve_logs():
@@ -71,36 +71,47 @@ def serve_logs():
         Return True if post was successful
     '''
     global logger
+    global LOG_FILE
     try:
         requests.get("http://google.com", timeout=4)
     except requests.exceptions.RequestException:
         return False
 
-    log_files = filter(lambda file: '.log' in file, os.listdir())
-    for file in log_files:
-        res = None
-        with open(file, 'rb') as f:
-            res = requests.post(SERVER_URL,f.read())
-        if res:
-            logger.debug("Log: {} posted successfully, moving".format(file))
-            os.rename(file, "done/"+file)
+    with open(LOG_FILE, 'rb') as f:
+        try:
+            res = requests.post(SERVER_URL,f.read(), timeout=10)
+            if res:
+                logger.debug("Log: {} posted successfully, moving".format(LOG_FILE))
+                # Copy the log file for safe keeping
+                shutil.copy(LOG_FILE, "done/"+str(time.time())+".log")
+        except:
+            logger.debug("Timed Out Posting Log")
+            return False
+
+    # Truncate the log file
+    with open(LOG_FILE, 'w') as file:
+        pass
+    return True
 
 if __name__ == "__main__":
     rst = Button(0)
     counter = 0
     timer = 0 # Keep track of how long it's been since we've gotten a log
     run = False # Loop flag
+    posted = False
 
     logger.debug("Starting now")
     while True:
+        time.sleep(0.2)
         if run:
-            if worker(counter): # If we get a message successfully
+            posted = False
+            counter += 1
+            if worker(counter): # If we get a message successfully, reset timer
                 timer = 0
-                counter += 1
-            else: # keep track of failed messages
+            else: # otherwise, keep track of failed messages (eg when car is off)
                 timer += 1
-        else:    
-            serve_logs()
+        elif not posted:    
+            posted = serve_logs()
 
         # Stop running when we encounter too many failed messages
         if timer >= STOP_COUNT:
