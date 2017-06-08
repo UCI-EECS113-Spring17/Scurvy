@@ -8,7 +8,12 @@ import logging
 import requests
 
 from pynq.board import Button
+from pynq.board import LED
 
+LED_POSTING = LED(3)
+LED_RUNNING = LED(0)
+LED_2 = LED(2)
+LED_1 = LED(1)
 
 CANSPEED_125 = 7
 CANSPEED_250 = 3
@@ -100,25 +105,36 @@ if __name__ == "__main__":
     run = False # Loop flag
     posted = False
 
+    LED_1.off()
+    LED_2.off()
+    LED_POSTING.off()
+    LED_RUNNING.off()
+
     logger.debug("Starting now")
     while True:
-        time.sleep(0.2)
+        time.sleep(1)
         if run:
+            LED_1.on()
             posted = False
             counter += 1
             if worker(counter): # If we get a message successfully, reset timer
                 timer = 0
             else: # otherwise, keep track of failed messages (eg when car is off)
                 timer += 1
-        elif not posted:    
+            LED_1.off()
+        elif not posted:
+            LED_POSTING.on()
             posted = serve_logs()
 
         # Stop running when we encounter too many failed messages
         if timer >= STOP_COUNT:
+            LED_RUNNING.off()
             logger.debug("Stopped running, serving now")
             run = False
             timer = 0
         elif rst.read() == 1: # on Button press start running
+            LED_RUNNING.on()
+            LED_POSTING.off()
             logger.debug("Started running")
             reset()
             run = True
